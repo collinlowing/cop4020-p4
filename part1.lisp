@@ -1,7 +1,11 @@
+(defvar filename "theString.txt")
+
+
 (defun demo () "runs the fsa processing"
-  (write(averagenum 10 20 30 40)))
-
-
-(defun averagenum (n1 n2 n3 n4)
-   (/ ( + n1 n2 n3 n4) 4))
-   
+  (write filename)
+  (terpri)
+  (setq file (open filename :direction :input))
+  (setq list (read file "done"))
+  (princ "processing ")
+  (terpri)
+  (princ list))
