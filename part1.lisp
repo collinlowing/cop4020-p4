@@ -10,68 +10,24 @@
   (write filename)
   (terpri)
   (setq file (open filename :direction :input))
-  (setq list (read file "done"))
+  (setq strlist (read file "done"))
   (princ "processing ")
   (terpri)
-  (princ list)
+  (princ strlist)
   (terpri)
   (setq current-state 0)
   (setq accept 0)
-  (loop for c in list
-    do (princ c)
-      (terpri)
-      (cond ((and (= current-state 0)
-                (STRING-EQUAL c "x")
-                (progn
-                 (setq current-state 0)
-                 (setq accept 0))))
-           (and (= current-state 0
-                 (STRING-EQUAL c "y")
-                 (progn
-                  (setq current-state 1)
-                  (setq accept 1)))
+  (setq alphabet '(x y z a))
+  (princ alphabet)
+  (terpri)
 
-              (and (= current-state 1
-                    (STRING-EQUAL c "x")
-                    (progn
-                     (setq current-state 2)
-                     (setq accept 0))))
-
-              (and (= current-state 2
-                    (STRING-EQUAL c "x")
-                    (progn
-                     (setq current-state 2)
-                     (setq accept 0))))
-
-              (and (= current-state 2
-                    (STRING-EQUAL c "y")
-                    (progn
-                     (setq current-state 3)
-                     (setq accept 1))))
-              (and (= current-state 3
-                    (STRING-EQUAL c "x")
-                    (progn
-                     (setq current-state 3)
-                     (setq accept 1))))
-
-              (and (= current-state 3
-                    (STRING-EQUAL c "z")
-                    (progn
-                     (setq current-state 4)
-                     (setq accept 0))))
-
-              (and (= current-state 4
-                    (STRING-EQUAL c "x")
-                    (progn
-                     (setq current-state 4)
-                     (setq accept 0))))
-
-              (and (= current-state 4
-                    (STRING-EQUAL c "a")
-                    (progn
-                     (setq current-state 1)
-                     (setq accept 1))))
-              (t (error "illegal char in string")))))
+  (dolist (c strlist)
+     (write c)
+    (terpri)
+    (if (find c alphabet)
+      (princ "character is in alphabet")
+      (princ "character is not in alphabet"))
+    (terpri))
 
   (if (= accept 1)
     (write "string is legal")
