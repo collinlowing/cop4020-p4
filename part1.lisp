@@ -12,11 +12,11 @@
     (return-from Node0 0)) ; not an accept state
   ; Handle transitions
   (let ((lss ls) (n 0))
-    (dolist (L (map 'list 'string ls))
+    (dolist (L ls)
       (cond
-        ((search L "x") (setf n (+ n 1)))
-        ((search L "y") (return-from Node0 (Node1 (subseq lss (+ n 1) (length lss))))))
-      (if (> n 0) (return-from Node0 1))))
+        ((STRING-EQUAL L "x") (setf n (+ n 1)))
+        ((STRING-EQUAL L "y") (return-from Node0 (Node1 (subseq lss (+ n 1) (length lss))))))
+      (if (> n 0) (write "n > 0"))))
   (return-from Node0 0))
 
 (defun Node1(ls)
@@ -25,9 +25,9 @@
     (return-from Node1 1)) ; accept state
   ; Handle transitions
   (let ((lss ls) (n 0))
-    (dolist (L (map 'list 'string ls))
+    (dolist (L ls)
       (cond
-        ((search L "x") (return-from Node1 (Node2 (subseq lss n (length lss))))))))
+        ((STRING-EQUAL L "x") (return-from Node1 (Node2 (subseq lss n (length lss))))))))
   (return-from Node1 0))
 
 (defun Node2(ls)
@@ -36,10 +36,10 @@
     (return-from Node2 0)) ; not an accept state
   ; Handle transitions
   (let ((lss ls) (n 0))
-    (dolist (L (map 'list 'string ls))
+    (dolist (L ls)
       (cond
-        ((search L "x") (setf n (+ n 1)))
-        ((search L "y") (return-from Node2 (Node3 (subseq lss (+ n 1) (length lss))))))))
+        ((STRING-EQUAL L "x") (setf n (+ n 1)))
+        ((STRING-EQUAL L "y") (return-from Node2 (Node3 (subseq lss (+ n 1) (length lss))))))))
   (return-from Node2 0))
 
 (defun Node3(ls)
@@ -48,10 +48,10 @@
     (return-from Node3 1)) ; accept state
   ; Handle transitions
   (let ((lss ls) (n 0))
-    (dolist (L (map 'list 'string ls))
+    (dolist (L ls)
       (cond
-        ((search L "x") (setf n (+ n 1)))
-        ((search L "z") (return-from Node3 (Node4 (subseq lss (+ n 1) (length lss))))))))
+        ((STRING-EQUAL L "x") (setf n (+ n 1)))
+        ((STRING-EQUAL L "z") (return-from Node3 (Node4 (subseq lss (+ n 1) (length lss))))))))
   (return-from Node3 0))
 
 (defun Node4(ls)
@@ -60,10 +60,10 @@
     (return-from Node3 0)) ; not an accept state
   ; Handle transitions
   (let ((lss ls) (n 0)); Transition Map
-    (dolist (L (map 'list 'string ls))
+    (dolist (L ls)
       (cond
-        ((search L "x") (setf n (+ n 1)))
-        ((search L "a") (return-from Node4 (Node1 (subseq lss (+ n 1) (length lss))))))))
+        ((STRING-EQUAL L "x") (setf n (+ n 1)))
+        ((STRING-EQUAL L "a") (return-from Node4 (Node1 (subseq lss (+ n 1) (length lss))))))))
   (return-from Node4 0))
 
 (defun demo () "runs the fsa processing"
