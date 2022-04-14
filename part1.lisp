@@ -6,93 +6,85 @@
 
 (defvar filename "theString.txt")
 
-(defun Node0(ls)
+(defun state0(strlist)
   ; end of string, stopping state reached
-  (if (= (length ls) 0)
-    (return-from Node0 0)) ; not an accept state
+  (if (= (length strlist) 0)
+    (return-from state0 0)) ; not an accept state
   ; Handle transitions
-  (let ((lss ls) (n 0))
-    (dolist (L ls)
+  (let ((sublist strlist) (n 0))
+    (dolist (L strlist)
       (cond
         ((STRING-EQUAL L "x") (setf n (+ n 1)))
-        ((STRING-EQUAL L "y") (return-from Node0 (Node1 (subseq lss (+ n 1) (length lss))))))
-      (if (> n 0) (write "n > 0"))))
-  (return-from Node0 0))
+        ((STRING-EQUAL L "y") (return-from state0 (state1 (subseq sublist (+ n 1) (length sublist))))))))
+  (return-from state0 0))
 
-(defun Node1(ls)
+(defun state1(strlist)
   ; end of string, stopping state reached
-  (if (= (length ls) 0)
-    (return-from Node1 1)) ; accept state
+  (if (= (length strlist) 0)
+    (return-from state1 1)) ; accept state
   ; Handle transitions
-  (let ((lss ls) (n 0))
-    (dolist (L ls)
+  (let ((sublist strlist) (n 0))
+    (dolist (L strlist)
       (cond
-        ((STRING-EQUAL L "x") (return-from Node1 (Node2 (subseq lss n (length lss))))))))
-  (return-from Node1 0))
+        ((STRING-EQUAL L "x") (return-from state1 (state2 (subseq sublist n (length sublist))))))))
+  (return-from state1 0))
 
-(defun Node2(ls)
+(defun state2(strlist)
   ; end of string, stopping state reached
-  (if (= (length ls) 0)
-    (return-from Node2 0)) ; not an accept state
+  (if (= (length strlist) 0)
+    (return-from state2 0)) ; not an accept state
   ; Handle transitions
-  (let ((lss ls) (n 0))
-    (dolist (L ls)
-      (cond
-        ((STRING-EQUAL L "x") (setf n (+ n 1)))
-        ((STRING-EQUAL L "y") (return-from Node2 (Node3 (subseq lss (+ n 1) (length lss))))))))
-  (return-from Node2 0))
-
-(defun Node3(ls)
-  ; end of string, stopping state reached
-  (if (= (length ls) 0)
-    (return-from Node3 1)) ; accept state
-  ; Handle transitions
-  (let ((lss ls) (n 0))
-    (dolist (L ls)
+  (let ((sublist strlist) (n 0))
+    (dolist (L strlist)
       (cond
         ((STRING-EQUAL L "x") (setf n (+ n 1)))
-        ((STRING-EQUAL L "z") (return-from Node3 (Node4 (subseq lss (+ n 1) (length lss))))))))
-  (return-from Node3 0))
+        ((STRING-EQUAL L "y") (return-from state2 (state3 (subseq sublist (+ n 1) (length sublist))))))))
+  (return-from state2 0))
 
-(defun Node4(ls)
+(defun state3(strlist)
   ; end of string, stopping state reached
-  (if (= (length ls) 0)
-    (return-from Node3 0)) ; not an accept state
+  (if (= (length strlist) 0)
+    (return-from state3 1)) ; accept state
   ; Handle transitions
-  (let ((lss ls) (n 0)); Transition Map
-    (dolist (L ls)
+  (let ((sublist strlist) (n 0))
+    (dolist (L strlist)
       (cond
         ((STRING-EQUAL L "x") (setf n (+ n 1)))
-        ((STRING-EQUAL L "a") (return-from Node4 (Node1 (subseq lss (+ n 1) (length lss))))))))
-  (return-from Node4 0))
+        ((STRING-EQUAL L "z") (return-from state3 (state4 (subseq sublist (+ n 1) (length sublist))))))))
+  (return-from state3 0))
+
+(defun state4(strlist)
+  ; end of string, stopping state reached
+  (if (= (length strlist) 0)
+    (return-from state3 0)) ; not an accept state
+  ; Handle transitions
+  (let ((sublist strlist) (n 0)); Transition Map
+    (dolist (L strlist)
+      (cond
+        ((STRING-EQUAL L "x") (setf n (+ n 1)))
+        ((STRING-EQUAL L "a") (return-from state4 (state1 (subseq sublist (+ n 1) (length sublist))))))))
+  (return-from state4 0))
 
 (defun demo () "runs the fsa processing"
-  (write filename)
-  (terpri)
   (setq file (open filename :direction :input))
   (setq strlist (read file "done"))
   (princ "processing ")
   (terpri)
-  (princ strlist)
-  (terpri)
   (setq current-state 0)
   (setq accept 0)
   (setq alphabet '(x y z a))
-  (princ alphabet)
-  (terpri)
+
+  ; variable for determining the string is part of the alphabet
+  (setq inalphabet 0)
 
   ; check if string matches alphabet
   (dolist (c strlist)
-     (write c)
-    (terpri)
     (if (find c alphabet)
-      (princ "character is in alphabet")
-      (princ "character is not in alphabet"))
-    (terpri))
+      (setq inalphabet 1)
+      (setq inalphabet 0)))
 
-  ; process transitions
-  (princ (Node0 strlist))
-  (terpri)
-  (if (= (Node0 strlist) 1)
+  ; process FSA
+  (setq success (state0 strlist))
+  (if (and (= success 1) (= inalphabet 1))
     (write "string is legal") ; success
     (write "string is illegal"))) ; failure
