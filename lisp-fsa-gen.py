@@ -1,28 +1,38 @@
 # Student Name: Collin Lowing
-# File Name: main.py
+# File Name: lisp-fsa-gen.py
 # Project 4
 #
-# Driving code. Calls other classes and functions
-
+# Generates lisp code with fsa.txt
 import sys
-import parse
-import fsa
 
-fsa_filename = 'fsa.txt'
+import fsa
+import parse
+
 output_filename = 'part2.lisp'
 string_filename = 'theString.txt'
-parser = parse.Parser(fsa_filename)
 fsa = fsa.FSA()
 tokens = []
 alphabet = []
 transitions = []
 states = []
+accept_states = []
 state_nodes = []
 transition_nodes = []
 input_string = ''
 
 
 def parse_fsa():
+    argc = len(sys.argv)
+
+    if argc < 2:
+        print("error: no commandline arguments")
+        quit()
+
+    fsa_filename = sys.argv[1]
+
+    # initiate parser
+    parser = parse.Parser(fsa_filename)
+
     global tokens
     tokens = parser.read_tokens()
 
@@ -39,6 +49,9 @@ def parse_fsa():
 
     # # for testing
     # print(transitions)
+
+    global accept_states
+    accept_states = parser.parse_comma(tokens[4])
 
 
 def check_fsa():
@@ -74,10 +87,6 @@ def load_fsa():
 
     # # for testing
     # print(states)
-    accept_states = parser.parse_comma(tokens[4])
-
-    # # for testing
-    # print(accept_states)
 
     for state in states:
         if state in accept_states:
@@ -104,22 +113,22 @@ def generate_state(state):
     state_num = state.get_number()
     state_transitions = fsa.get_possible_transitions(state, transition_nodes)
 
-    stream += '(defun state' + state_num + '(strlist)\n'
-    stream += '\t(if (= (length strlist) 0)\n'
+    stream += '(defun state' + state_num + '(stringlist)\n'
+    stream += '\t(if (= (length stringlist) 0)\n'
     if state.is_accept_state():
         stream += '\t\t(return-from state' + state_num + ' 1))\n'
     else:
         stream += '\t\t(return-from state' + state_num + ' 0))\n'
-    stream += '\t(let ((sublist strlist) (n 0))\n'
-    stream += '\t\t(dolist (C strlist)\n'
+    stream += '\t(let ((sublist stringlist) (n 0))\n'
+    stream += '\t\t(dolist (char stringlist)\n'
     stream += '\t\t\t(cond\n'
     for s_transition in state_transitions:
         transition_char = s_transition.get_alpha()
         next_state = s_transition.get_end_state()
         if next_state.get_number() == state.get_number():
-            stream += '\t\t\t\t((STRING-EQUAL C "' + transition_char + '") (setf n (+ n 1)))\n'
+            stream += '\t\t\t\t((STRING-EQUAL char "' + transition_char + '") (setf n (+ n 1)))\n'
         else:
-            stream += '\t\t\t\t((STRING-EQUAL C "' + transition_char + '") (return-from state' + state_num + ' (state' + next_state.get_number() + ' (subseq sublist (+ n 1) (length sublist)))))\n'
+            stream += '\t\t\t\t((STRING-EQUAL char "' + transition_char + '") (return-from state' + state_num + ' (state' + next_state.get_number() + ' (subseq sublist (+ n 1) (length sublist)))))\n'
     stream += ')))\n'
     stream += '\t(return-from state' + state_num + ' 0))\n\n'
 
@@ -149,7 +158,7 @@ def generate_demo():
     stream = ''
     stream += '(defun demo ()\n'
     stream += '\t(setq file (open filename :direction :input))\n'
-    stream += '\t(setq strlist (read file "done"))\n'
+    stream += '\t(setq stringlist (read file "done"))\n'
     stream += '\t(princ "processing ")\n'
     stream += '\t(terpri)\n'
     stream += '\t(setq current-state 0)\n'
@@ -161,11 +170,11 @@ def generate_demo():
     # cut the last space character out
     stream = stream[:len(stream) - 1]
     stream += '))\n'
-    stream += '\t(setq inalphabet (checkalphabet strlist alphabet))\n'
-    stream += '\t(setq success (state' + start_state_number + ' strlist))\n'
+    stream += '\t(setq inalphabet (checkalphabet stringlist alphabet))\n'
+    stream += '\t(setq success (state' + start_state_number + ' stringlist))\n'
     stream += '\t(if (and (= success 1) (= inalphabet 1))\n'
-    stream += '\t\t(write "string is legal")\n'
-    stream += '\t\t(write "string is illegal")))\n'
+    stream += '\t\t(princ "string is legal")\n'
+    stream += '\t\t(princ "string is illegal")))\n'
 
     return stream
 
